@@ -54,9 +54,7 @@ RUN chmod +x ArrayFire.sh && ./ArrayFire.sh --include-subdir --prefix=/opt
 RUN echo /opt/arrayfire/lib64 > /etc/ld.so.conf.d/arrayfire.conf
 RUN ldconfig
 
-
 USER $NB_UID
-
 
 # R packages including IRKernel which gets installed globally.
 RUN conda install --quiet --yes \
@@ -77,18 +75,10 @@ RUN conda install --quiet --yes \
     'r-shiny=1.6*' \
     'r-tidyverse=1.3*' \
     'rpy2=3.4*'
-
     
 RUN mamba install --quiet --yes \
-    'tensorflow=2.4.1' keras
-
-RUN mamba install --quiet --yes \
-     pytorch torchvision
-
-RUN mamba install --quiet --yes \
-     opencv jupyterlab jupyterlab-drawio theme-darcula -c conda-forge
-
-RUN conda clean --all -f -y && \
+    'tensorflow=2.4.1' keras pytorch torchvision opencv jupyterlab jupyterlab-drawio theme-darcula -c conda-forge && \
+    conda clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
