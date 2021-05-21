@@ -48,14 +48,16 @@ RUN mkdir /etc/julia && \
     chown "${NB_USER}" "${JULIA_PKGDIR}" && \
     fix-permissions "${JULIA_PKGDIR}"
 
-USER $NB_UID
-
-
 # ArrayFire
 RUN curl https://arrayfire.s3.amazonaws.com/3.8.0/ArrayFire-v3.8.0_Linux_x86_64.sh --output ArrayFire.sh
 RUN chmod +x ArrayFire.sh && ./ArrayFire.sh --include-subdir --prefix=/opt
 RUN echo /opt/arrayfire/lib64 > /etc/ld.so.conf.d/arrayfire.conf
 RUN ldconfig
+
+
+USER $NB_UID
+
+
 
 # R packages including IRKernel which gets installed globally.
 RUN conda install --quiet --yes \
