@@ -58,10 +58,8 @@ RUN ldconfig
 USER $NB_UID
 
 
-
 # R packages including IRKernel which gets installed globally.
 RUN conda install --quiet --yes \
-    tensorflow keras pytorch torchvision torchaudio opencv detectron2 fvcore jupyterlab jupyterlab-drawio theme-darcula cudatoolkit=11.1 \
     'r-base=4.0.3'  \
     'r-caret=6.0*' \
     'r-crayon=1.4*' \
@@ -78,8 +76,19 @@ RUN conda install --quiet --yes \
     'r-rsqlite=2.2*' \
     'r-shiny=1.6*' \
     'r-tidyverse=1.3*' \
-    'rpy2=3.4*' -c pytorch -c nvidia -c conda-forge && \
-    conda clean --all -f -y && \
+    'rpy2=3.4*'
+
+    
+RUN mamba install --quiet --yes \
+    'tensorflow=2.4.1' keras
+
+RUN mamba install --quiet --yes \
+     pytorch torchvision
+
+RUN mamba install --quiet --yes \
+     opencv jupyterlab jupyterlab-drawio theme-darcula -c conda-forge
+
+RUN conda clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
