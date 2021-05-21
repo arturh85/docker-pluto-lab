@@ -19,10 +19,11 @@ RUN apt-get install -y --no-install-recommends \
     gfortran \
     git net-tools nginx supervisor nodejs \
     gcc && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*  && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python2 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 2
 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 1
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 2
 
 # Julia dependencies
 # install Julia packages in /opt/julia instead of $HOME
@@ -49,10 +50,11 @@ RUN mkdir /etc/julia && \
     fix-permissions "${JULIA_PKGDIR}"
 
 # ArrayFire
-RUN curl https://arrayfire.s3.amazonaws.com/3.8.0/ArrayFire-v3.8.0_Linux_x86_64.sh --output ArrayFire.sh
-RUN chmod +x ArrayFire.sh && ./ArrayFire.sh --include-subdir --prefix=/opt
-RUN echo /opt/arrayfire/lib64 > /etc/ld.so.conf.d/arrayfire.conf
-RUN ldconfig
+RUN curl https://arrayfire.s3.amazonaws.com/3.8.0/ArrayFire-v3.8.0_Linux_x86_64.sh --output ArrayFire.sh && \
+    chmod +x ArrayFire.sh && ./ArrayFire.sh --include-subdir --prefix=/opt && \
+    echo /opt/arrayfire/lib64 > /etc/ld.so.conf.d/arrayfire.conf && \
+    ldconfig && \
+    rm -f ArrayFire.sh
 
 USER $NB_UID
 
@@ -74,9 +76,8 @@ RUN conda install --quiet --yes \
     'r-rsqlite=2.2*' \
     'r-shiny=1.6*' \
     'r-tidyverse=1.3*' \
-    'rpy2=3.4*'
-    
-RUN mamba install --quiet --yes \
+    'rpy2=3.4*' && \
+    mamba install --quiet --yes \
     'tensorflow=2.4.1' keras pytorch torchvision opencv jupyterlab jupyterlab-drawio theme-darcula -c conda-forge && \
     conda clean --all -f -y && \
     fix-permissions "${CONDA_DIR}" && \
