@@ -12,11 +12,9 @@ ARG julia_version="1.6.1"
 # SHA256 checksum
 ARG julia_checksum="7c888adec3ea42afbfed2ce756ce1164a570d50fa7506c3f2e1e2cbc49d52506"
 
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-
+RUN apt-get update && apt-get install -y --no-install-recommends curl && curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
 # R pre-requisites
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apt-get install -y --no-install-recommends \
     fonts-dejavu \
     gfortran \
     git net-tools nginx supervisor nodejs \
