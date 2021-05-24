@@ -18,12 +18,13 @@ RUN apt-get install -y --no-install-recommends \
     fonts-dejavu \
     gfortran \
     git net-tools nginx supervisor nodejs \
+    build-essential cmake libboost-dev \
+    libexpat1-dev zlib1g-dev libbz2-dev pkg-config libffi-dev \
     gcc && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*  && \
     update-alternatives --install /usr/bin/python python /usr/bin/python2 1 && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 2
-
 
 # Julia dependencies
 # install Julia packages in /opt/julia instead of $HOME
@@ -56,6 +57,8 @@ RUN curl https://arrayfire.s3.amazonaws.com/3.8.0/ArrayFire-v3.8.0_Linux_x86_64.
     ldconfig && \
     rm -f ArrayFire.sh
 
+
+RUN addgroup jovyan && adduser jovyan jovyan
 USER $NB_UID
 
 # R packages including IRKernel which gets installed globally.
@@ -78,8 +81,16 @@ RUN conda install --quiet --yes \
     'r-tidyverse=1.3*' \
     'rpy2=3.4*' && \
     mamba install --quiet --yes \
-    'tensorflow=2.4.1' keras pytorch torchvision opencv jupyterlab jupyterlab-drawio theme-darcula -c conda-forge && \
+    'tensorflow=2.4.1' keras pytorch torchvision opencv -c conda-forge && \
     conda clean --all -f -y && \
+    pip install -U jupyterlab jupyterlab-drawio theme-darcula osmium && \
+    pip install git+https://github.com/facebookresearch/fvcore.git && \
+    pip install git+https://github.com/facebookresearch/detectron2.git && \
+    jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
+    jupyter labextension install jupyter-matplotlib && \
+    jupyter nbextension enable --py widgetsnbextension && \
+    jupyter labextension update --all && \
+    jupyter lab build && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
