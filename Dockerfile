@@ -109,10 +109,10 @@ RUN julia -e 'import Pkg; Pkg.update()' && \
     rm -rf "${HOME}/.local" && \
     fix-permissions "${JULIA_PKGDIR}" "${CONDA_DIR}/share/jupyter"
 
-ENV DOTNET_CLI_TELEMETRY_OPTOUT 1
+ENV PATH="/home/jovyan/.dotnet:/home/jovyan/.dotnet/tools:${PATH}"  
 ENV DOTNET_ROOT /home/jovyan/.dotnet
-RUN curl https://dot.net/v1/dotnet-install.sh -sLSf | bash -s -- -c Current && ~/.dotnet/dotnet tool install -g --add-source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" Microsoft.dotnet-interactive
-RUN PATH="$PATH:/home/jovyan/.dotnet/tools" ~/.dotnet/dotnet interactive jupyter install && jupyter kernelspec list
+RUN curl https://dot.net/v1/dotnet-install.sh -sLSf | bash -s -- -c Current && dotnet tool install -g --add-source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" Microsoft.dotnet-interactive
+RUN dotnet interactive jupyter install && jupyter kernelspec list
 RUN mkdir -p ${HOME}/workspace
 VOLUME ${HOME}/workspace
 WORKDIR $HOME
