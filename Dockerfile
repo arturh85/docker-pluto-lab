@@ -81,9 +81,9 @@ RUN conda install --quiet --yes \
     'r-tidyverse=1.3*' \
     'rpy2=3.4*' && \
     mamba install --quiet --yes \
-    'tensorflow=2.4.1' keras pytorch torchvision opencv -c conda-forge && \
+    'tensorflow=2.4.1' beakerx keras pytorch torchvision opencv -c conda-forge && \
     conda clean --all -f -y && \
-    pip install -U jupyterlab jupyterlab-drawio theme-darcula osmium && \
+    pip install -U tensorflow-cloud jupyterlab jupyterlab-drawio jupyterlab-lsp elyra theme-darcula osmium && \
     pip install git+https://github.com/facebookresearch/fvcore.git && \
     pip install git+https://github.com/facebookresearch/detectron2.git && \
     jupyter labextension install @jupyter-widgets/jupyterlab-manager && \
@@ -94,12 +94,14 @@ RUN conda install --quiet --yes \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && source $HOME/.cargo/env && cargo install evcxr_repl
+
 # Add Julia packages.
 # Install IJulia as jovyan and then move the kernelspec out
 # to the system share location. Avoids problems with runtime UID change not
 # taking effect properly on the .local folder in the jovyan home dir.
 RUN julia -e 'import Pkg; Pkg.update()' && \
-    julia -e 'import Pkg; Pkg.add(["Pluto", "PlutoUI", "DataFrames", "CSV", "JSON", "Plots", "Plotly", "CUDA", "Query", "Latexify", "PyCall", "RCall", "HDF5"])' && \
+    julia -e 'import Pkg; Pkg.add(["LanguageServer", "Pluto", "PlutoUI", "DataFrames", "CSV", "JSON", "Plots", "Plotly", "CUDA", "Query", "Latexify", "PyCall", "RCall", "HDF5"])' && \
     julia -e 'using Pkg; pkg"add IJulia"; pkg"precompile"' && \
     # move kernelspec out of home \
     mv "${HOME}/.local/share/jupyter/kernels/julia"* "${CONDA_DIR}/share/jupyter/kernels/" && \
@@ -107,6 +109,10 @@ RUN julia -e 'import Pkg; Pkg.update()' && \
     rm -rf "${HOME}/.local" && \
     fix-permissions "${JULIA_PKGDIR}" "${CONDA_DIR}/share/jupyter"
 
+ENV DOTNET_CLI_TELEMETRY_OPTOUT 1
+ENV DOTNET_ROOT /home/jovyan/.dotnet
+RUN curl https://dot.net/v1/dotnet-install.sh -sLSf | bash -s -- -c Current && ~/.dotnet/dotnet tool install -g --add-source "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" Microsoft.dotnet-interactive
+RUN PATH="$PATH:/home/jovyan/.dotnet/tools" ~/.dotnet/dotnet interactive jupyter install && jupyter kernelspec list
 RUN mkdir -p ${HOME}/workspace
 VOLUME ${HOME}/workspace
 WORKDIR $HOME
